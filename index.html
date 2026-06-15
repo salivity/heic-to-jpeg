@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>heic-to-jpeg - salivity.github.io</title>
+    <meta name="description" content="Easily convert HEIC and HEIF image files to standard JPEG format in batches. Fast, secure, and runs entirely in your browser without uploading your files to a server.">
+    
+    <meta property="og:title" content="heic-to-jpeg - salivity.github.io">
+    <meta property="og:description" content="Easily convert HEIC and HEIF image files to standard JPEG format in batches. Fast, secure, and runs entirely in your browser without uploading your files to a server.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://salivity.github.io/heic-to-jpeg">
+    <meta property="og:image:url" content="/heic-to-jpeg/images/open-graph/default.webp">
+    <meta property="og:image:secure_url" content="/heic-to-jpeg/images/open-graph/default.webp">
+    
+    <link rel="canonical" href="https://salivity.github.io/heic-to-jpeg">
+    <link rel="manifest" href="/heic-to-jpeg/pwa/manifest.json">
+    <link rel="icon" href="/heic-to-jpeg/favicon.ico">
+
+    <style>
+        /* CSS Custom Properties & Clean Framework */
+        :root {
+            --bg-color: #ffffff;
+            --surface-color: #f8f9fa;
+            --text-color: #212529;
+            --text-hover: #4f5153;
+            --border-color: #dee2e6;
+            --primary-color: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --danger-color: #dc3545;
+            --danger-hover: #bb2d3b;
+            --font-sans: 'Open Sans', sans-serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+            --border-radius: 6px;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #212529;
+            --surface-color: #343a40;
+            --text-color: #f8f9fa;
+            --text-hover: #fff;
+            --border-color: #495057;
+            --primary-color: #0d6efd;
+            --danger-color: #dc3545;
+        }
+
+        @font-face {
+            font-family: 'Open Sans';
+            src: url('/heic-to-jpeg/fonts/Open-Sans-Regular.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'IBM Plex Mono';
+            src: url('/heic-to-jpeg/fonts/IBM-Plex-Mono-Regular.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            -webkit-text-size-adjust: 100%; /* Safari fix */
+        }
+
+        /* Typography */
+        h1, h2, h3 { margin-bottom: 1rem; }
+        p { margin-bottom: 1rem; }
+        .mono { font-family: var(--font-mono); }
+
+        /* Layout */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Header & Navigation */
+        header {
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            background-color: var(--surface-color);
+            margin-bottom: 2rem;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            align-items: center;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-size: 1.1rem;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-actions a:hover, .nav-actions button:hover{
+            color: var(--text-hover) !important;
+        }
+
+        .nav-actions a:visited{
+            color: var(--text-color);
+        }
+
+        .svg-icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+            cursor: pointer;
+        }
+
+        .theme-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            padding: 0;
+            display: flex;
+        }
+
+        [data-theme="dark"] .icon-light { display: none; }
+        [data-theme="light"] .icon-dark { display: none; }
+
+        /* Main Content */
+        main { padding: 2rem 0; }
+
+        .tool-intro {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+        }
+
+        /* Forms & Inputs */
+        .form-group {
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .quality-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .quality-controls input[type="range"] { flex-grow: 1; }
+        
+        input[type="number"], input[type="file"] {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border-radius: var(--border-radius);
+        }
+
+        input[type="number"] { width: 80px; font-family: var(--font-mono); }
+
+        /* Buttons */
+        button, .btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1rem;
+            font-family: var(--font-sans);
+            font-weight: bold;
+            text-align: center;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+
+        .btn-primary { background-color: var(--primary-color); }
+        .btn-danger { background-color: var(--danger-color); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* File List */
+        .file-list {
+            margin-top: 2rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background-color: var(--surface-color);
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .file-item:last-child { border-bottom: none; }
+        .file-item .btn { width: auto; margin: 0; padding: 0.5rem 1rem; }
+
+        /* Dialog */
+        dialog {
+            margin: auto;
+            padding: 2rem;
+            background-color: var(--surface-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        dialog::backdrop { background: rgba(0,0,0,0.5); }
+        .dialog-actions { display: flex; gap: 1rem; margin-top: 1.5rem; }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            border-top: 1px solid var(--border-color);
+            margin-top: 2rem;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 600px) {
+            .file-item { flex-direction: column; align-items: stretch; gap: 1rem; }
+            .file-item .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body data-theme="light">
+
+    <header>
+        <div class="container">
+            <nav>
+                <ul>
+                    <li><a href="/heic-to-jpeg">salivity.github.io/<strong>heic-to-jpeg</strong></a></li>
+                </ul>
+                <div class="nav-actions">
+                    <a href="https://github.com/salivity" title="GitHub" aria-label="GitHub">
+                        <svg class="svg-icon" focusable="false" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 1.27a11 11 0 00-3.48 21.46c.55.09.73-.28.73-.55v-1.84c-3.03.64-3.67-1.46-3.67-1.46-.55-1.29-1.28-1.65-1.28-1.65-.92-.65.1-.65.1-.65 1.1 0 1.73 1.1 1.73 1.1.92 1.65 2.57 1.2 3.21.92a2 2 0 01.64-1.47c-2.47-.27-5.04-1.19-5.04-5.5 0-1.1.46-2.1 1.2-2.84a3.76 3.76 0 010-2.93s.91-.28 3.11 1.1c1.8-.49 3.7-.49 5.5 0 2.1-1.38 3.02-1.1 3.02-1.1a3.76 3.76 0 010 2.93c.83.74 1.2 1.74 1.2 2.94 0 4.21-2.57 5.13-5.04 5.4.45.37.82.92.82 2.02v3.03c0 .27.1.64.73.55A11 11 0 0012 1.27"></path></svg>
+                    </a>
+                    <button id="theme-switch" class="theme-btn" aria-label="Toggle Theme">
+                        <svg class="svg-icon icon-light" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5M2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1m18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1M11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1m0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1M5.99 4.58c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41zm12.37 12.37c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0 .39-.39.39-1.03 0-1.41zm1.06-10.96c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0zM7.05 18.36c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0z"></path></svg>
+                        <svg class="svg-icon icon-dark" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1"></path></svg>
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="tool-intro">
+            <h1>HEIC to JPEG Batch Converter</h1>
+            <p>Welcome to the <strong>heic-to-jpeg</strong> conversion tool. This utility allows you to seamlessly batch convert Apple's High-Efficiency Image Format (HEIC/HEIF) into standard JPEGs, ensuring maximum compatibility across all your devices and applications.</p>
+            <p>This tool processes all images locally within your browser. Your private photos never leave your device, guaranteeing absolute security and speed.</p>
+        </section>
+
+        <section id="converter-interface">
+            <div class="form-group">
+                <label for="file-input"><strong>Select HEIC/HEIF Files</strong></label>
+                <input type="file" id="file-input" accept=".heic, .heif" multiple>
+            </div>
+
+            <div class="form-group">
+                <label for="quality-range"><strong>JPEG Quality (%)</strong></label>
+                <div class="quality-controls">
+                    <input type="range" id="quality-range" min="0" max="100" value="80" step="1">
+                    <input type="number" id="quality-number" min="0" max="100" value="80" step="1">
+                </div>
+            </div>
+
+            <button type="button" id="start-btn" class="btn btn-primary">Start Conversion</button>
+            <button type="button" id="clear-btn" class="btn btn-danger">Clear All</button>
+
+            <div id="output-area" style="display: none;">
+                <button type="button" id="download-zip-btn" class="btn btn-primary">Download All as ZIP</button>
+                <div class="file-list" id="file-list"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Copyright &copy; <span id="year"></span></p>
+    </footer>
+
+    <dialog id="clear-dialog">
+        <h3>Reset Converter</h3>
+        <p>Are you sure you want to clear all selected files and reset the form?</p>
+        <div class="dialog-actions">
+            <button class="btn btn-primary" id="dialog-cancel">Cancel</button>
+            <button class="btn btn-danger" id="dialog-confirm">Clear Form</button>
+        </div>
+    </dialog>
+
+    <script src="/heic-to-jpeg/js/heic2any.min.js"></script>
+    <script src="/heic-to-jpeg/js/jszip.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const PROJECT_NAME = "heic-to-jpeg";
+            const USE_LOCAL_STORAGE = true;
+
+            // DOM Elements
+            const themeSwitch = document.getElementById('theme-switch');
+            const fileInput = document.getElementById('file-input');
+            const qualityRange = document.getElementById('quality-range');
+            const qualityNumber = document.getElementById('quality-number');
+            const startBtn = document.getElementById('start-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const outputArea = document.getElementById('output-area');
+            const fileList = document.getElementById('file-list');
+            const downloadZipBtn = document.getElementById('download-zip-btn');
+            const clearDialog = document.getElementById('clear-dialog');
+            const dialogCancel = document.getElementById('dialog-cancel');
+            const dialogConfirm = document.getElementById('dialog-confirm');
+            
+            let convertedBlobs = [];
+
+            // --- Storage & Initialization ---
+            function getStoreKey(key) { return `${PROJECT_NAME}.${key}`; }
+
+            function initSettings() {
+                document.getElementById('year').textContent = new Date().getFullYear();
+
+                if (USE_LOCAL_STORAGE) {
+                    const savedTheme = localStorage.getItem(getStoreKey('theme')) || 'light';
+                    document.body.setAttribute('data-theme', savedTheme);
+
+                    const savedQuality = localStorage.getItem(getStoreKey('quality'));
+                    if (savedQuality) {
+                        qualityRange.value = savedQuality;
+                        qualityNumber.value = savedQuality;
+                    }
+                }
+            }
+
+            // --- Event Listeners ---
+            themeSwitch.addEventListener('click', () => {
+                const currentTheme = document.body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                document.body.setAttribute('data-theme', newTheme);
+                if (USE_LOCAL_STORAGE) localStorage.setItem(getStoreKey('theme'), newTheme);
+            });
+
+            function syncQuality(e) {
+                const val = e.target.value;
+                qualityRange.value = val;
+                qualityNumber.value = val;
+                if (USE_LOCAL_STORAGE) localStorage.setItem(getStoreKey('quality'), val);
+            }
+            qualityRange.addEventListener('input', syncQuality);
+            qualityNumber.addEventListener('input', syncQuality);
+
+            // --- Interface Locking ---
+            function toggleLock(locked) {
+                fileInput.disabled = locked;
+                qualityRange.disabled = locked;
+                qualityNumber.disabled = locked;
+                startBtn.disabled = locked;
+                clearBtn.disabled = locked;
+                if (locked) {
+                    startBtn.textContent = "Converting... Please wait";
+                } else {
+                    startBtn.textContent = "Start Conversion";
+                }
+            }
+
+            // --- Conversion Logic ---
+            startBtn.addEventListener('click', async () => {
+                if (fileInput.files.length === 0) {
+                    alert("Please select at least one HEIC/HEIF file.");
+                    return;
+                }
+                
+                // Note: requires heic2any loaded locally
+                if (typeof heic2any === 'undefined') {
+                    alert("heic2any library is missing. Please ensure it is available in /js/ directory.");
+                    return;
+                }
+
+                toggleLock(true);
+                outputArea.style.display = 'block';
+                fileList.innerHTML = '';
+                convertedBlobs = [];
+                const quality = parseInt(qualityNumber.value) / 100;
+
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    const file = fileInput.files[i];
+                    try {
+                        const jpegBlob = await heic2any({
+                            blob: file,
+                            toType: "image/jpeg",
+                            quality: quality
+                        });
+
+                        const isArray = Array.isArray(jpegBlob);
+                        const finalBlob = isArray ? jpegBlob[0] : jpegBlob;
+                        const originalName = file.name.replace(/\.[^/.]+$/, "");
+                        const newFilename = `${originalName}.jpg`;
+
+                        convertedBlobs.push({ name: newFilename, blob: finalBlob });
+                        
+                        const url = URL.createObjectURL(finalBlob);
+                        const item = document.createElement('div');
+                        item.className = 'file-item';
+                        item.innerHTML = `
+                            <span class="mono">${newFilename}</span>
+                            <a href="${url}" download="${newFilename}" class="btn btn-primary">Download</a>
+                        `;
+                        fileList.appendChild(item);
+
+                    } catch (err) {
+                        const item = document.createElement('div');
+                        item.className = 'file-item';
+                        item.innerHTML = `<span style="color: var(--danger-color);">Error converting ${file.name}</span>`;
+                        fileList.appendChild(item);
+                        console.error("Conversion error:", err);
+                    }
+                }
+                toggleLock(false);
+            });
+
+            // --- ZIP Generation ---
+            downloadZipBtn.addEventListener('click', async () => {
+                if (typeof JSZip === 'undefined') {
+                    alert("JSZip library is missing. Please ensure it is available in /js/ directory.");
+                    return;
+                }
+                
+                const zip = new JSZip();
+                convertedBlobs.forEach(item => {
+                    zip.file(item.name, item.blob);
+                });
+                
+                downloadZipBtn.disabled = true;
+                downloadZipBtn.textContent = "Zipping...";
+                
+                const content = await zip.generateAsync({ type: "blob" });
+                const url = URL.createObjectURL(content);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = "converted_images.zip";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                
+                downloadZipBtn.disabled = false;
+                downloadZipBtn.textContent = "Download All as ZIP";
+            });
+
+            // --- Clear Dialog Logic ---
+            clearBtn.addEventListener('click', () => { clearDialog.showModal(); });
+            dialogCancel.addEventListener('click', () => { clearDialog.close(); });
+            
+            dialogConfirm.addEventListener('click', () => {
+                fileInput.value = '';
+                outputArea.style.display = 'none';
+                fileList.innerHTML = '';
+                convertedBlobs = [];
+                clearDialog.close();
+            });
+
+            // Run Init
+            initSettings();
+        });
+    </script>
+</body>
+</html>
